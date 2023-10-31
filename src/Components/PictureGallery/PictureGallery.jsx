@@ -59,8 +59,21 @@ const PictureGallery = () => {
     },
   ]);
 
-  const [imgHover,setImgHover] = useState('')
+  const [imgHover, setImgHover] = useState("");
+  const [selectedList, setSelectedList] = useState([]);
 
+  const handleCheckboxChange = (id) => {
+    if (selectedList.find((item) => item === id)) {
+      //delete id from array with the previous state
+      let newList = selectedList.filter((item) => item !== id);
+      setSelectedList(newList);
+    } else {
+      // Create a new array with the previous state and the new id
+      setSelectedList([...selectedList, id]);
+    }
+
+    console.log("paise mama", selectedList);
+  };
 
   const handleDragEnd = (sourceIndex, destinationIndex) => {
     const newBoxes = [...boxes];
@@ -70,17 +83,49 @@ const PictureGallery = () => {
   };
 
   return (
-    <div>
+    <div className="w-2/3 mx-auto">
+      
+      {/* title of the pages */}
       <p className="text-center text-3xl font-semibold py-10">
         Assalamualikum <br /> Welcome to My Task Assesment
       </p>
-      <div className=" grid grid-cols-6 grid-rows-5 gap-3">
+
+      {/* sub title and actions for delete */}
+      <div>
+        {selectedList.length > 0 ? (
+          <div className="flex gap-4 justify-center items-center">
+            <input
+              className="h-5 w-5 z-40" type="checkbox" name="" id="" checked
+            />
+
+            <p className="text-xl font-semibold my-10">
+              {selectedList.length} {selectedList.length > 1 ? "Files" : "File"}{" "}
+              Selected
+            </p>
+            <button className="text-lg text-white font-semibold rounded-xl px-4 py-2  bg-red-400 hover:bg-red-600">Delete {selectedList.length > 1 ? "Files" : "File"}</button>
+          </div>
+        ) : (
+          <div>
+            <p className="text-2xl font-semibold my-10 text-center">Gallery</p>
+          </div>
+        )}
+      </div>
+
+      <hr />
+      <br />
+
+      
+
+        {/* main gellary */}
+      <div className=" grid grid-cols-5 gap-3">
         {boxes.map((box, index) => (
-          
           <div
+            onMouseEnter={() => setImgHover(box?.id)}
+            onMouseLeave={() => setImgHover("")}
             key={box?.id}
-            className={`relative box border-[1px] shadow-md border-gray-300 rounded-md ${
-              index === 0 ? "col-span-2 row-span-2" : ""} `}
+            className={`relative cursor-pointer box border-[1px] shadow-md border-gray-300 rounded-md ${
+              index === 0 ? "col-span-2 row-span-2" : ""
+            } `}
             draggable
             onDragStart={(e) => e.dataTransfer.setData("DragComponent", index)}
             onDragOver={(e) => e.preventDefault()}
@@ -89,15 +134,38 @@ const PictureGallery = () => {
               handleDragEnd(Number(sourceIndex), index);
             }}
           >
-            
-            {imgHover === box?.id && 
-            <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 z-30"></div>
-            }
-            <img onMouseEnter={()=>setImgHover(box?.id)} className={`rounded-md `} src={box?.img}></img>
-            {
-              imgHover === box?.id &&
-              <input className="absolute top-3 left-2 h-5 w-5 z-40" type="checkbox" name="" id="" />
-            }
+            {selectedList.find((item) => item === box?.id) ||
+            imgHover === box?.id ? (
+              <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 z-30"></div>
+            ) : (
+              imgHover === box?.id && (
+                <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 z-30"></div>
+              )
+            )}
+
+
+            <img className={`rounded-md`} src={box?.img}></img>
+
+            {selectedList.find((item) => item === box?.id) ? (
+              <input
+                onClick={() => handleCheckboxChange(box?.id)}
+                className="absolute cursor-pointer top-3 left-2 h-5 w-5 z-40"
+                type="checkbox"
+                name=""
+                id=""
+                checked
+              />
+            ) : (
+              imgHover === box?.id && (
+                <input
+                  onClick={() => handleCheckboxChange(box?.id)}
+                  className="absolute cursor-pointer top-3 left-2 h-5 w-5 z-40"
+                  type="checkbox"
+                  name=""
+                  id=""
+                />
+              )
+            )}
           </div>
         ))}
       </div>
