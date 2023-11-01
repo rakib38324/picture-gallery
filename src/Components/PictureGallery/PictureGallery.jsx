@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FcAddImage } from "react-icons/fc";
 
 const PictureGallery = () => {
   const [boxes, setBoxes] = useState([
@@ -57,6 +58,11 @@ const PictureGallery = () => {
       content: "Box-11",
       img: "https://i.ibb.co/sF3kNYh/image-11.jpg",
     },
+    {
+      id: "box-12",
+      content: "Box-12",
+      img: "https://i.ibb.co/CmznN6J/image-9.webp",
+    },
   ]);
 
   const [imgHover, setImgHover] = useState("");
@@ -83,30 +89,39 @@ const PictureGallery = () => {
   };
 
   return (
-    <div className="w-2/3 mx-auto">
-      
+    <div className="lg:w-2/3 mx-auto my-5 p-2">
       {/* title of the pages */}
-      <p className="text-center text-3xl font-semibold py-10">
+      {/* <p className="text-center text-3xl font-semibold py-10">
         Assalamualikum <br /> Welcome to My Task Assesment
-      </p>
+      </p> */}
 
       {/* sub title and actions for delete */}
-      <div>
+      <div className="pb-5">
         {selectedList.length > 0 ? (
-          <div className="flex gap-4 justify-center items-center">
-            <input
-              className="h-5 w-5 z-40" type="checkbox" name="" id="" checked
-            />
+          <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+            <div className="flex justify-center items-center py-10">
+              <input
+                className="h-5 w-5 z-40"
+                type="checkbox"
+                name=""
+                id=""
+                checked
+              />
 
-            <p className="text-xl font-semibold my-10">
-              {selectedList.length} {selectedList.length > 1 ? "Files" : "File"}{" "}
-              Selected
-            </p>
-            <button className="text-lg text-white font-semibold rounded-xl px-4 py-2  bg-red-400 hover:bg-red-600">Delete {selectedList.length > 1 ? "Files" : "File"}</button>
+              <p className="text-xl font-semibold my-auto px-2">
+                {selectedList.length}{" "}
+                {selectedList.length > 1 ? "Files" : "File"} Selected
+              </p>
+            </div>
+            <button className="text-lg text-white font-semibold rounded-xl px-4 py-2  bg-red-400 hover:bg-red-600">
+              Delete {selectedList.length > 1 ? "Files" : "File"}
+            </button>
           </div>
         ) : (
           <div>
-            <p className="text-2xl font-semibold my-10 text-center">Gallery</p>
+            <p className="text-xl lg:text-3xl font-semibold my-10 text-center">
+              Gallery
+            </p>
           </div>
         )}
       </div>
@@ -114,18 +129,16 @@ const PictureGallery = () => {
       <hr />
       <br />
 
-      
-
-        {/* main gellary */}
-      <div className=" grid grid-cols-5 gap-3">
+      {/* main gellary */}
+      <div className=" grid md:grid-cols-5 gap-3">
         {boxes.map((box, index) => (
           <div
             onMouseEnter={() => setImgHover(box?.id)}
             onMouseLeave={() => setImgHover("")}
             key={box?.id}
-            className={`relative cursor-pointer box border-[1px] shadow-md border-gray-300 rounded-md ${
-              index === 0 ? "col-span-2 row-span-2" : ""
-            } `}
+            className={`relative cursor-pointer border-[1px] shadow-md border-gray-300 rounded-md ${
+              index === 0 ? "md:col-span-2 md:row-span-2" : ""
+            }`}
             draggable
             onDragStart={(e) => e.dataTransfer.setData("DragComponent", index)}
             onDragOver={(e) => e.preventDefault()}
@@ -136,16 +149,18 @@ const PictureGallery = () => {
           >
             {selectedList.find((item) => item === box?.id) ||
             imgHover === box?.id ? (
-              <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 z-30"></div>
+              // hover related functionality
+              <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 rounded-md  z-30"></div>
             ) : (
               imgHover === box?.id && (
-                <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 z-30"></div>
+                <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 rounded-md  z-30"></div>
               )
             )}
 
-
+            {/* main images  */}
             <img className={`rounded-md`} src={box?.img}></img>
 
+            {/* selected button here */}
             {selectedList.find((item) => item === box?.id) ? (
               <input
                 onClick={() => handleCheckboxChange(box?.id)}
@@ -168,6 +183,26 @@ const PictureGallery = () => {
             )}
           </div>
         ))}
+
+        {/* upload images  */}
+        <div className="py-7 flex flex-col justify-center items-center border-[1px] shadow-md border-gray-300 rounded-md cursor-pointer">
+          <label
+            htmlFor="files"
+            className="flex flex-col justify-center items-center cursor-pointer"
+          >
+            <FcAddImage className="text-4xl"></FcAddImage>
+            <div className=" font-bold px-[1rem] py-[.75rem] rounded-[.25rem]">
+              Add Images
+            </div>
+          </label>
+          <input
+            type="file"
+            name="files"
+            id="files"
+            // onChange={(e) => setAttachment(e.target.files[0])}
+            hidden
+          />
+        </div>
       </div>
     </div>
   );
