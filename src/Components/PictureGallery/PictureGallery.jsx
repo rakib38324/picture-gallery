@@ -1,72 +1,15 @@
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { FcAddImage } from "react-icons/fc";
+import Loading from "../Common/loading";
 
 const PictureGallery = () => {
-  const [boxes, setBoxes] = useState([
-    {
-      id: "box-1",
-      content: "Box-1",
-      img: "https://i.ibb.co/5jXtFc1/image-1.webp",
-    },
-    {
-      id: "box-2",
-      content: "Box-2",
-      img: "https://i.ibb.co/HXzn1tQ/image-2.webp",
-    },
-    {
-      id: "box-3",
-      content: "Box-3",
-      img: "https://i.ibb.co/NKN1vX8/image-3.webp",
-    },
-    {
-      id: "box-4",
-      content: "Box-4",
-      img: "https://i.ibb.co/MnHyxHC/image-4.webp",
-    },
-    {
-      id: "box-5",
-      content: "Box-5",
-      img: "https://i.ibb.co/MhZBb8S/image-5.webp",
-    },
-    {
-      id: "box-6",
-      content: "Box-6",
-      img: "https://i.ibb.co/ZTY7NDn/image-6.webp",
-    },
-    {
-      id: "box-7",
-      content: "Box-7",
-      img: "https://i.ibb.co/mXCQZr0/image-7.webp",
-    },
-    {
-      id: "box-8",
-      content: "Box-8",
-      img: "https://i.ibb.co/G9gq16g/image-8.webp",
-    },
-    {
-      id: "box-9",
-      content: "Box-9",
-      img: "https://i.ibb.co/CmznN6J/image-9.webp",
-    },
-    {
-      id: "box-10",
-      content: "Box-10",
-      img: "https://i.ibb.co/hR3yrqf/image-10.jpg",
-    },
-    {
-      id: "box-11",
-      content: "Box-11",
-      img: "https://i.ibb.co/sF3kNYh/image-11.jpg",
-    },
-    {
-      id: "box-12",
-      content: "Box-12",
-      img: "https://i.ibb.co/CmznN6J/image-9.webp",
-    },
-  ]);
-
+  const [boxes, setBoxes] = useState([]);
   const [imgHover, setImgHover] = useState("");
+  const [attachment, setAttachment]= useState(null);
   const [selectedList, setSelectedList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleCheckboxChange = (id) => {
     if (selectedList.find((item) => item === id)) {
@@ -77,8 +20,6 @@ const PictureGallery = () => {
       // Create a new array with the previous state and the new id
       setSelectedList([...selectedList, id]);
     }
-
-    console.log("paise mama", selectedList);
   };
 
   const handleDragEnd = (sourceIndex, destinationIndex) => {
@@ -88,8 +29,91 @@ const PictureGallery = () => {
     setBoxes(newBoxes);
   };
 
+  // insert the picture
+  const handleInsertData = () => {
+    
+    if (attachment) {
+      setLoading(true);
+      const image = attachment;
+      const formData = new FormData();
+      formData.append("image", image);
+      const url = `https://api.imgbb.com/1/upload?key=374a2c280221bdcd4696fcf7fe2f1bdd`;
+      fetch(url, {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((imgData) => {
+          // console.log(imgData)
+          // console.log(imgData.data.url)
+          const link = imgData?.data?.url;
+
+          const imageLink = {
+            img: link,
+          };
+
+          // Save user information to the database
+          fetch("http://localhost:5000/pictures", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(imageLink),
+          })
+            .then((res) => res.json())
+            .then((result) => {
+              console.log(result);
+              refetch();
+              toast.success("Image Added");
+              setAttachment("");
+              setLoading(false);
+            });
+        });
+    }
+
+    console.log("final",attachment)
+  };
+
+  useEffect(()=>{
+    
+  },[])
+
+  // get pictures from database
+  const { refetch } = useQuery({
+    queryKey: ["images"],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:5000/pictures", {
+        headers: {},
+      });
+      const data = await res.json();
+      setBoxes(data);
+    },
+  });
+
+  //delete images from database
+  const handleDeleteImages = () => {
+    console.log(selectedList);
+    for (let i = 0; i < selectedList.length; i++) {
+      // console.log(selectedList[i])
+
+      const id = selectedList[i];
+
+      fetch(`http://localhost:5000/pictures/${id}`, {
+        method: "DELETE",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          refetch();
+        });
+    }
+    setSelectedList([]);
+    toast.success("The file is deleted successfully.");
+  };
+
   return (
     <div className="lg:w-2/3 mx-auto my-5 p-2">
+      {loading === true ? <Loading></Loading> : <p></p>}
       {/* title of the pages */}
       {/* <p className="text-center text-3xl font-semibold py-10">
         Assalamualikum <br /> Welcome to My Task Assesment
@@ -105,7 +129,7 @@ const PictureGallery = () => {
                 type="checkbox"
                 name=""
                 id=""
-                checked
+                defaultChecked
               />
 
               <p className="text-xl font-semibold my-auto px-2">
@@ -113,7 +137,10 @@ const PictureGallery = () => {
                 {selectedList.length > 1 ? "Files" : "File"} Selected
               </p>
             </div>
-            <button className="text-lg text-white font-semibold rounded-xl px-4 py-2  bg-red-400 hover:bg-red-600">
+            <button
+              onClick={() => handleDeleteImages()}
+              className="text-lg text-white font-semibold rounded-xl px-4 py-2  bg-red-400 hover:bg-red-600"
+            >
               Delete {selectedList.length > 1 ? "Files" : "File"}
             </button>
           </div>
@@ -133,9 +160,9 @@ const PictureGallery = () => {
       <div className=" grid md:grid-cols-5 gap-3">
         {boxes.map((box, index) => (
           <div
-            onMouseEnter={() => setImgHover(box?.id)}
+            onMouseEnter={() => setImgHover(box?._id)}
             onMouseLeave={() => setImgHover("")}
-            key={box?.id}
+            key={box?._id}
             className={`relative cursor-pointer border-[1px] shadow-md border-gray-300 rounded-md ${
               index === 0 ? "md:col-span-2 md:row-span-2" : ""
             }`}
@@ -147,23 +174,23 @@ const PictureGallery = () => {
               handleDragEnd(Number(sourceIndex), index);
             }}
           >
-            {selectedList.find((item) => item === box?.id) ||
-            imgHover === box?.id ? (
+            {selectedList.find((item) => item === box?._id) ||
+            imgHover === box?._id ? (
               // hover related functionality
-              <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 rounded-md  z-30"></div>
+              <div className="absolute w-full h-full opacity-40 top-0 bg-gray-400 rounded-md  z-30"></div>
             ) : (
-              imgHover === box?.id && (
-                <div className="absolute w-full h-full opacity-40 top-0 bg-gray-500 rounded-md  z-30"></div>
+              imgHover === box?._id && (
+                <div className="absolute w-full h-full opacity-40 top-0 bg-gray-400 rounded-md  z-30"></div>
               )
             )}
 
             {/* main images  */}
-            <img className={`rounded-md`} src={box?.img}></img>
+            <img className={`w-full h-full rounded-md`} src={box?.img}></img>
 
             {/* selected button here */}
-            {selectedList.find((item) => item === box?.id) ? (
+            {selectedList.find((item) => item === box?._id) ? (
               <input
-                onClick={() => handleCheckboxChange(box?.id)}
+                onClick={() => handleCheckboxChange(box?._id)}
                 className="absolute cursor-pointer top-3 left-2 h-5 w-5 z-40"
                 type="checkbox"
                 name=""
@@ -171,9 +198,9 @@ const PictureGallery = () => {
                 checked
               />
             ) : (
-              imgHover === box?.id && (
+              imgHover === box?._id && (
                 <input
-                  onClick={() => handleCheckboxChange(box?.id)}
+                  onClick={() => handleCheckboxChange(box?._id)}
                   className="absolute cursor-pointer top-3 left-2 h-5 w-5 z-40"
                   type="checkbox"
                   name=""
@@ -185,7 +212,7 @@ const PictureGallery = () => {
         ))}
 
         {/* upload images  */}
-        <div className="py-7 flex flex-col justify-center items-center border-[1px] shadow-md border-gray-300 rounded-md cursor-pointer">
+        <div className={`${attachment ? "py-4" : "py-7"}  flex flex-col justify-center items-center border-[1px] shadow-md border-gray-300 rounded-md cursor-pointer`}>
           <label
             htmlFor="files"
             className="flex flex-col justify-center items-center cursor-pointer"
@@ -199,9 +226,12 @@ const PictureGallery = () => {
             type="file"
             name="files"
             id="files"
-            // onChange={(e) => setAttachment(e.target.files[0])}
+            onChange={(e)=>setAttachment(e.target.files[0])}
             hidden
           />
+          {
+            attachment  && <p onClick={handleInsertData} className="px-4 py-2 bg-green-400 font-semibold hover:bg-green-500 rounded">Added</p>
+          }
         </div>
       </div>
     </div>
