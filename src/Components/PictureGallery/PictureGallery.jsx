@@ -14,7 +14,7 @@ const PictureGallery = () => {
     //---------------------------- get pictures from database
     const { refetch } = useQuery({
       queryFn: async () => {
-        const res = await fetch("http://localhost:5000/pictures", {
+        const res = await fetch("https://picture-gallery-server-rakib38324.vercel.app/pictures", {
           headers: {},
         });
         const data = await res.json();
@@ -49,7 +49,7 @@ const PictureGallery = () => {
           };
 
           // Save user information to the database
-          fetch("http://localhost:5000/pictures", {
+          fetch("https://picture-gallery-server-rakib38324.vercel.app/pictures", {
             method: "POST",
             headers: {
               "content-type": "application/json",
@@ -84,7 +84,7 @@ const PictureGallery = () => {
 
       const id = selectedList[i];
 
-      fetch(`http://localhost:5000/pictures/${id}`, {
+      fetch(`https://picture-gallery-server-rakib38324.vercel.app/pictures/${id}`, {
         method: "DELETE",
       })
         .then((res) => res.json())
