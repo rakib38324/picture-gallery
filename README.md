@@ -1,8 +1,12 @@
-# React + Vite
+#Assalamualikum
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+#Welcome to my task
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+##This is a simple image gallery.
+features:
+1. Images are re-arrangeable and you have arranged them in your mind.
+2. You also selected multiple images for deletion.
+3. Also it has an image insertion option.
+
+#Live link: https://picture-gallery-rakib.netlify.app/
