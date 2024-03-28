@@ -1,4 +1,4 @@
-## Assalamualikum, Welcome to my task
+## Assalamualikum, Welcome to my task.
 
 This is a simple image gallery.
 Live link: https://picture-gallery-rakib.netlify.app/
