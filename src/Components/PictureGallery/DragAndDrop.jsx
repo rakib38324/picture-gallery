@@ -31,9 +31,8 @@ const DragAndDrop = ({
               onMouseEnter={() => setImgHover(box?._id)}
               onMouseLeave={() => setImgHover("")}
               key={box?._id}
-              className={`relative cursor-pointer border-[1px] shadow-md border-gray-300 rounded-md ${
-                index === 0 ? "md:col-span-2 md:row-span-2" : ""
-              }`}
+              className={`relative cursor-pointer border-[1px] shadow-md border-gray-300 rounded-md ${index === 0 ? "md:col-span-2 md:row-span-2" : ""
+                }`}
               draggable
               onDragStart={(e) =>
                 e.dataTransfer.setData("DragComponent", index)
@@ -45,7 +44,7 @@ const DragAndDrop = ({
               }}
             >
               {selectedList.find((item) => item === box?._id) ||
-              imgHover === box?._id ? (
+                imgHover === box?._id ? (
                 // hover related functionality
                 <div className="absolute w-full h-full opacity-40 top-0 bg-gray-400 rounded-md  z-30"></div>
               ) : (
@@ -55,7 +54,7 @@ const DragAndDrop = ({
               )}
 
               {/* main images  */}
-              <img className={`w-full h-full rounded-md`} src={box?.img}></img>
+              <img className={` w-full h-full rounded-md object-cover`} src={box?.img}></img>
 
               {/* selected button here */}
               {selectedList.find((item) => item === box?._id) ? (
@@ -83,9 +82,8 @@ const DragAndDrop = ({
 
           {/*---------------- upload images ---------------  */}
           <div
-            className={`${
-              attachment ? "py-4" : "py-12"
-            }  flex flex-col justify-center items-center border-[1px] border-dashed shadow-md border-gray-300 rounded-md cursor-pointer bg-white`}
+            className={`${attachment ? "py-4" : "py-12"
+              }  flex flex-col justify-center items-center border-[1px] border-dashed shadow-md border-gray-300 rounded-md  bg-white`}
           >
             <label
               htmlFor="files"
@@ -97,15 +95,16 @@ const DragAndDrop = ({
               type="file"
               name="files"
               id="files"
+              accept="image/*"
               onChange={(e) => setAttachment(e.target.files[0])}
               hidden
             />
             {attachment && (
               <p
                 onClick={handleInsertData}
-                className="px-4 py-2 bg-blue-500 font-semibold hover:bg-blue-500 rounded my-4"
+                className="px-4 py-2 bg-blue-900 text-white font-semibold cursor-pointer hover:bg-blue-800 rounded my-4"
               >
-                {loading === true ? <Loading></Loading> : "Add Image"}
+                Confirm Upload
               </p>
             )}
           </div>
@@ -118,9 +117,8 @@ const DragAndDrop = ({
           </p>
           {/* upload images  */}
           <div
-            className={`${
-              attachment ? "py-4" : "py-12"
-            }  flex flex-col justify-center items-center border-[1px] border-dashed shadow-md border-gray-300 rounded-md cursor-pointer bg-white`}
+            className={`${attachment ? "py-4" : "py-12"
+              }  flex flex-col justify-center items-center border-[1px] border-dashed shadow-md border-gray-300 rounded-md cursor-pointer bg-white`}
           >
             <label
               htmlFor="files"
@@ -138,9 +136,9 @@ const DragAndDrop = ({
             {attachment && (
               <p
                 onClick={handleInsertData}
-                className="px-4 py-2 bg-bule-500 font-semibold hover:bg-bule-600 rounded my-4"
+                className="px-4 py-2 bg-blue-900 text-white font-semibold cursor-pointer hover:bg-blue-800 rounded my-4"
               >
-                {loading === true ? <Loading></Loading> : "Add Image"}
+                Confirm Upload
               </p>
             )}
           </div>

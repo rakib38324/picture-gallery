@@ -6,27 +6,29 @@ import DragAndDrop from "./DragAndDrop";
 
 const PictureGallery = () => {
   const [boxes, setBoxes] = useState([]);
-  const [attachment, setAttachment]= useState(null);
+  const [attachment, setAttachment] = useState(null);
   const [selectedList, setSelectedList] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  
-    //---------------------------- get pictures from database
-    const { refetch } = useQuery({
-      queryFn: async () => {
-        const res = await fetch("https://picture-gallery-server-rakib38324.vercel.app/pictures", {
-          headers: {},
-        });
-        const data = await res.json();
-        setBoxes(data);
-      },
-    });
- 
+
+  //---------------------------- get pictures from database
+  const { refetch } = useQuery({
+    queryFn: async () => {
+      setLoading(true);
+      const res = await fetch("https://picture-gallery-server-eta.vercel.app/pictures", {
+        headers: {},
+      });
+      const data = await res.json();
+      setBoxes(data);
+      setLoading(false);
+    },
+  });
+
 
 
   //------------------------------------- insert the picture-----------------------
   const handleInsertData = () => {
-    
+
     if (attachment) {
       // console.log("uploadin start");
       setLoading(true);
@@ -40,8 +42,8 @@ const PictureGallery = () => {
       })
         .then((res) => res.json())
         .then((imgData) => {
-          // console.log("Uploaded",imgData)
-          // console.log(imgData.data.url)
+          console.log("Uploaded", imgData)
+          console.log(imgData.data.url)
           const link = imgData?.data?.url;
 
           const imageLink = {
@@ -49,7 +51,7 @@ const PictureGallery = () => {
           };
 
           // Save user information to the database
-          fetch("https://picture-gallery-server-rakib38324.vercel.app/pictures", {
+          fetch("https://picture-gallery-server-eta.vercel.app/picture", {
             method: "POST",
             headers: {
               "content-type": "application/json",
@@ -58,8 +60,7 @@ const PictureGallery = () => {
           })
             .then((res) => res.json())
             .then((result) => {
-              result
-              // console.log(result);
+              console.log(result);
               refetch();
               toast.success("Image Added");
               setAttachment("");
@@ -67,43 +68,79 @@ const PictureGallery = () => {
             });
         });
     }
-    else{
+    else {
       toast.error("Opps! Someting is wrong. Try again...");
+      console.log("no image selected");
     }
 
   };
 
-  
+
 
   //------------------------------delete images from database------------------
-  const handleDeleteImages = () => {
-    // console.log(selectedList);
-    setLoading(true);
-    for (let i = 0; i < selectedList.length; i++) {
-      // console.log(selectedList[i])
+  // const handleDeleteImages = () => {
+  //   // console.log(selectedList);
+  //   setLoading(true);
+  //   for (let i = 0; i < selectedList.length; i++) {
+  //     // console.log(selectedList[i])
 
-      const id = selectedList[i];
+  //     const id = selectedList[i];
 
-      fetch(`https://picture-gallery-server-rakib38324.vercel.app/pictures/${id}`, {
-        method: "DELETE",
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          // console.log(data);
-          data
-          refetch();
-        });
+  //     fetch(`https://picture-gallery-server-eta.vercel.app/picture/${id}`, {
+  //       method: "DELETE",
+  //     })
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         console.log(data);
+  //         data
+  //         refetch();
+  //       });
+  //   }
+  //   setSelectedList([]);
+  //   toast.success("The file is deleted successfully.");
+  //   setLoading(false);
+  // };
+  const handleDeleteImages = async () => {
+    if (!selectedList.length) return;
+
+    try {
+      setLoading(true);
+
+      // Call bulk delete API
+      const response = await fetch(
+        "https://picture-gallery-server-eta.vercel.app/pictures",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ids: selectedList }),
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+
+      // Refresh the gallery
+      refetch();
+
+      // Clear selection
+      setSelectedList([]);
+
+      toast.success(`${data.deletedCount} file(s) ${data?.message}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete images.");
+    } finally {
+      setLoading(false);
     }
-    setSelectedList([]);
-    toast.success("The file is deleted successfully.");
-    setLoading(false);
   };
 
 
 
   //------------------------------Selected Images------------------
   const handleCheckboxChange = (id) => {
-    if(id === -1){
+    if (id === -1) {
       setSelectedList([]);
     }
     else if (selectedList.find((item) => item === id)) {
@@ -118,7 +155,7 @@ const PictureGallery = () => {
   return (
     <div className="lg:w-2/3 bg-gray-100 rounded mx-auto my-5 p-2">
       {loading === true ? <Loading></Loading> : <p></p>}
-    
+
 
       <div className="pb-5">
         {selectedList.length > 0 ? (
@@ -130,7 +167,7 @@ const PictureGallery = () => {
                 name=""
                 id=""
                 defaultChecked
-                onClick={()=> handleCheckboxChange(-1)}
+                onClick={() => handleCheckboxChange(-1)}
               />
 
               <p className="text-xl font-semibold my-auto px-2">
@@ -159,19 +196,19 @@ const PictureGallery = () => {
 
       {/*------------------------- main gellary ------------------------*/}
       <div>
-          {/*------------------ drag and drop component ----------------*/}
-        <DragAndDrop 
-        boxes={boxes} 
-        setBoxes={setBoxes}
-        selectedList={selectedList}
-        setSelectedList={setSelectedList}
-        setAttachment={setAttachment}
-        attachment={attachment}
-        handleInsertData={handleInsertData}
-        handleCheckboxChange={handleCheckboxChange}
-        loading={loading}
+        {/*------------------ drag and drop component ----------------*/}
+        <DragAndDrop
+          boxes={boxes}
+          setBoxes={setBoxes}
+          selectedList={selectedList}
+          setSelectedList={setSelectedList}
+          setAttachment={setAttachment}
+          attachment={attachment}
+          handleInsertData={handleInsertData}
+          handleCheckboxChange={handleCheckboxChange}
+          loading={loading}
         ></DragAndDrop>
-        
+
       </div>
     </div>
   );
